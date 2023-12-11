@@ -6,6 +6,7 @@ import os
 
 STOP_SIGNAL_FILE = 'stop_signal.txt'
 
+
 class MyHandler(FileSystemEventHandler):
     def on_created(self, event):
         self.run_script2(event)
