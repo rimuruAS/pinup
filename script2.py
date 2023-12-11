@@ -42,14 +42,16 @@ def read_files(directory):
 def analyze_bets(bets_df):
     bets_df["coef"] = bets_df['payout']/bets_df['amount']
     # Finding consecutive wins with coef > 1.5
+    bets_df['player_id'] = bets_df['player_id'].astype(int)
+    bets_df = bets_df.sort_values(['player_id', 'bet_id'])
     bets_df['consecutive_wins'] = (bets_df['result'] == 'Win') & (bets_df['coef'] > 1.5)
     bets_df['group'] = (bets_df['consecutive_wins'] != bets_df['consecutive_wins'].shift(1)).cumsum()
     consecutive_wins_df = bets_df[bets_df['consecutive_wins']]
 
     # Finding users with 5 consecutive wins
     users_with_5_consecutive_wins = consecutive_wins_df.groupby(['player_id', 'group']).filter(lambda x: len(x) >= 5)
-
-    return users_with_5_consecutive_wins.drop_duplicates(subset=['player_id'])
+    users_with_5_consecutive_wins = users_with_5_consecutive_wins['player_id']
+    return users_with_5_consecutive_wins.drop_duplicates()
 
 
 def analyze_deposit_behavior(bet_df, payments_df):
@@ -81,7 +83,8 @@ def analyze_deposit_behavior(bet_df, payments_df):
         (cartesian_df['amount'] <= 1.1 * cartesian_df['paid_amount']) &
         (cartesian_df['accept_time'] >= cartesian_df['Date_x']) &
         (cartesian_df['accept_time'] <= cartesian_df['Date_y'])]
-    return cartesian_df.drop_duplicates(subset=['player_id'])
+    cartesian_df = cartesian_df['player_id']
+    return cartesian_df.drop_duplicates()
 
 
 def main():
